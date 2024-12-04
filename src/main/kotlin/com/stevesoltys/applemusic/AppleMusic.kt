@@ -49,7 +49,7 @@ open class AppleMusic(
       currentToken = this.devTokenProvider?.developerToken
       if (currentToken != null && !currentToken!!.isExpired()) {
         currentToken = AppleMusicTokenGenerator(configuration).generate()
-        this.devTokenProvider?.setDeveloperToken(currentToken)
+        this.devTokenProvider?.developerToken = currentToken
       }
     }
     return currentToken!!

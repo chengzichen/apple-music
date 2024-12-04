@@ -45,8 +45,9 @@ class AppleMusicE2ETest {
         teamId = TEAM_ID,
         privateKey = Base64.getDecoder().decode(PRIVATE_KEY_BASE64),
         keyId = KEY_ID,
-        storefront = STOREFRONT
+        storefront = STOREFRONT,
       )
+      , devTokenProvider = null
     )
   }
 
