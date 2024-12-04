@@ -1,12 +1,13 @@
 package com.stevesoltys.applemusic
 
+import com.stevesoltys.applemusic.framwork.DevTokenProvider
 import com.stevesoltys.applemusic.model.album.AlbumResponse
+import com.stevesoltys.applemusic.model.album.library.LibraryAlbumResponse
 import com.stevesoltys.applemusic.model.artist.ArtistResponse
+import com.stevesoltys.applemusic.model.artist.library.LibraryArtistResponse
 import com.stevesoltys.applemusic.model.chart.ChartResponse
 import com.stevesoltys.applemusic.model.chart.ChartResultType
 import com.stevesoltys.applemusic.model.chart.ChartType
-import com.stevesoltys.applemusic.model.album.library.LibraryAlbumResponse
-import com.stevesoltys.applemusic.model.artist.library.LibraryArtistResponse
 import com.stevesoltys.applemusic.model.search.SearchResponse
 import com.stevesoltys.applemusic.model.search.SearchResultType
 import com.stevesoltys.applemusic.model.track.song.library.LibrarySongResponse
@@ -21,9 +22,10 @@ import retrofit2.Call
 /**
  * @author Steve Soltys
  */
-class AppleMusic(
+open class AppleMusic(
   private val configuration: AppleMusicConfiguration,
-  private val retrofitBuilder: AppleMusicRetrofitBuilder? = null
+  private val retrofitBuilder: AppleMusicRetrofitBuilder? = null,
+  private var devTokenProvider: DevTokenProvider? = null
 ) {
 
   private val retrofit: AppleMusicRetrofitBuilder by lazy {
@@ -39,13 +41,25 @@ class AppleMusic(
         .create(AppleMusicService::class.java)
     }
 
-  private fun token(): AppleMusicAuthToken {
-
+  /**
+   *  Get the current developer token.
+   */
+  fun token(): AppleMusicAuthToken {
     if (currentToken == null || currentToken!!.isExpired()) {
-      currentToken = AppleMusicTokenGenerator(configuration).generate()
+      currentToken = this.devTokenProvider?.developerToken
+      if (currentToken != null && !currentToken!!.isExpired()) {
+        currentToken = AppleMusicTokenGenerator(configuration).generate()
+        this.devTokenProvider?.setDeveloperToken(currentToken)
+      }
     }
-
     return currentToken!!
+  }
+
+  /**
+   * Get the current dev token provider.
+   */
+  fun getDevTokenProvider(): DevTokenProvider? {
+    return devTokenProvider
   }
 
   /**
